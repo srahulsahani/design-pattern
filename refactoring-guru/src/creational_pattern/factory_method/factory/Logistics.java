@@ -1,4 +1,4 @@
-package creational_pattern.factory_method;
+package creational_pattern.factory_method.factory;
 
 public class Logistics {
     private final TransportFactory.TransportType transportType;
