@@ -2,14 +2,12 @@ package creational_pattern.factory_method;
 
 public class Main {
     public static void main(String[] args) {
-        Logistics logistics;
+        // Road Delivery
+        Logistics roadLogistics = new Logistics(TransportFactory.TransportType.ROAD);
+        roadLogistics.planDelivery();
 
-        //Road Delivery
-        logistics = new RoadLogistics();
-        logistics.planDelivery();
-
-        //Sea delivery
-        logistics = new SeaLogistics();
-        logistics.planDelivery();
+        // Sea Delivery
+        Logistics seaLogistics = new Logistics(TransportFactory.TransportType.SEA);
+        seaLogistics.planDelivery();
     }
 }

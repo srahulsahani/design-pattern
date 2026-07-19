@@ -1,15 +1,18 @@
-# 🏭 Factory Method Design Pattern
+# 🏭 Factory Method Design Pattern (Enhanced)
 
 ## 📖 What is Factory Method?
 
 The **Factory Method** is a creational design pattern that provides an interface for creating objects in a superclass but allows subclasses to alter the type of objects that will be created.
+
+**This enhanced implementation uses a dedicated Factory Class** for centralized object creation, which is a common variation that further simplifies the design.
 
 ### 🎯 Main Purpose
 
 - **Decouple object creation from object usage**: Clients don't need to know the exact class of objects they work with
 - **Promote loose coupling**: Reduces dependency between client code and concrete classes
 - **Enable extensibility**: New product types can be added without modifying existing client code
-- **Centralize creation logic**: Object creation logic is encapsulated in one place
+- **Centralize creation logic**: Object creation logic is encapsulated in one place (the Factory Class)
+- **Simplify client code**: No need for multiple creator subclasses
 
 ---
 
@@ -24,18 +27,17 @@ factory_method/
 ├── Transport.java          # Product interface
 ├── Truck.java              # Concrete product (road transport)
 ├── Ship.java               # Concrete product (sea transport)
-├── Logistics.java          # Creator abstract class
-├── RoadLogistics.java      # Concrete creator (creates Truck)
-├── SeaLogistics.java       # Concrete creator (creates Ship)
-└── Main.java               # Client code
+├── TransportFactory.java   # Factory class (creates objects)
+├── Logistics.java          # Client class (uses factory)
+└── Main.java               # Demo code
 ```
 
 ### 🏗️ Architecture
 
 - **Product Interface**: `Transport` - defines the `deliver()` method
 - **Concrete Products**: `Truck` and `Ship` - implement specific delivery methods
-- **Creator**: `Logistics` - abstract class with factory method `createTransport()`
-- **Concrete Creators**: `RoadLogistics` and `SeaLogistics` - implement factory method to create specific products
+- **Factory Class**: `TransportFactory` - centralized object creation with static factory method
+- **Client Class**: `Logistics` - uses the factory to create transport objects
 
 ---
 
@@ -48,22 +50,24 @@ factory_method/
                       │
                       ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              Logistics (Abstract Creator)                   │
+│                    Logistics (Client)                        │
 │  ┌─────────────────────────────────────────────────────┐   │
-│  │  + createTransport(): Transport (Factory Method)    │   │
+│  │  - transportType: TransportType                    │   │
+│  │  + Logistics(TransportType)                         │   │
 │  │  + planDelivery(): void                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              TransportFactory (Factory Class)               │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  enum TransportType { ROAD, SEA }                    │   │
+│  │  + createTransport(TransportType): Transport         │   │
 │  └─────────────────────────────────────────────────────┘   │
 └─────────────┬───────────────────────┬───────────────────────┘
               │                       │
               ▼                       ▼
-┌─────────────────────────┐  ┌─────────────────────────┐
-│   RoadLogistics         │  │   SeaLogistics          │
-│   (Concrete Creator)    │  │   (Concrete Creator)    │
-│  + createTransport()    │  │  + createTransport()    │
-│  returns: Truck         │  │  returns: Ship          │
-└────────────┬────────────┘  └────────────┬────────────┘
-             │                            │
-             ▼                            ▼
 ┌─────────────────────────┐  ┌─────────────────────────┐
 │        Truck            │  │        Ship             │
 │   (Concrete Product)    │  │   (Concrete Product)    │
@@ -73,11 +77,11 @@ factory_method/
 
 ### 📊 Execution Flow
 
-1. **Client** creates a concrete creator (`RoadLogistics` or `SeaLogistics`)
-2. **Client** calls `planDelivery()` method on the creator
-3. **Creator** internally calls `createTransport()` (factory method)
-4. **Concrete Creator** returns the appropriate product (`Truck` or `Ship`)
-5. **Creator** calls `deliver()` on the created product
+1. **Client** creates `Logistics` object with a transport type (ROAD or SEA)
+2. **Client** calls `planDelivery()` method on `Logistics`
+3. **Logistics** calls `TransportFactory.createTransport()` with the transport type
+4. **TransportFactory** returns the appropriate product (`Truck` or `Ship`) based on type
+5. **Logistics** calls `deliver()` on the created product
 6. **Product** executes its specific delivery logic
 
 ---
@@ -106,20 +110,21 @@ public void planDelivery(String type) {
 - Difficult to test and maintain
 - Creation logic scattered throughout the codebase
 
-### ✅ With Factory Method
+### ✅ With Factory Class (Enhanced Approach)
 
 ```java
-// Loose coupling - client works with abstract types
-Logistics logistics = new RoadLogistics();  // or SeaLogistics
-logistics.planDelivery();  // No need to know which transport is created
+// Loose coupling - client works with factory and enum
+Logistics logistics = new Logistics(TransportFactory.TransportType.ROAD);
+logistics.planDelivery();  // Factory creates appropriate transport
 ```
 
 **Benefits:**
-- **Open/Closed Principle**: New transport types can be added without modifying existing code
-- **Single Responsibility**: Each class has one clear responsibility
-- **Dependency Inversion**: High-level modules don't depend on low-level modules
-- **Easy Testing**: Can easily mock creators for testing
-- **Centralized Creation**: All creation logic in one place
+- **Open/Closed Principle**: New transport types can be added by adding enum value and case
+- **Single Responsibility**: Factory class solely handles object creation
+- **Simpler Design**: No need for multiple creator subclasses
+- **Type Safety**: Enum ensures only valid transport types are used
+- **Centralized Creation**: All creation logic in one static method
+- **Easy Testing**: Can easily mock factory for testing
 
 ---
 
@@ -147,31 +152,41 @@ logistics.planDelivery();  // No need to know which transport is created
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                  <<abstract>>                                    │
-│                      Logistics                                   │
+│              TransportFactory (Factory Class)                    │
 ├─────────────────────────────────────────────────────────────────┤
-│ # createTransport(): Transport  (Factory Method)                │
+│ + enum TransportType { ROAD, SEA }                              │
+│ + createTransport(TransportType): Transport                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ creates
+                              ▼
+                      ┌───────────────┐
+                      │   Transport   │
+                      └───────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      Logistics (Client)                          │
+├─────────────────────────────────────────────────────────────────┤
+│ - transportType: TransportType                                   │
+│ + Logistics(TransportType)                                       │
 │ + planDelivery(): void                                           │
 └─────────────────────────────────────────────────────────────────┘
-                              △
-                              │ extends
-              ┌───────────────┴───────────────┐
-              │                               │
-┌─────────────────────────┐   ┌─────────────────────────┐
-│    RoadLogistics         │   │    SeaLogistics          │
-├─────────────────────────┤   ├─────────────────────────┤
-│ + createTransport()     │   │ + createTransport()     │
-│   returns Truck         │   │   returns Ship          │
-└─────────────────────────┘   └─────────────────────────┘
+                              │
+                              │ uses
+                              ▼
+                      ┌───────────────┐
+                      │ TransportFactory │
+                      └───────────────┘
 ```
 
 ### Relationship Types
 
 - **Transport** ← **Truck**: Implementation (Truck implements Transport)
 - **Transport** ← **Ship**: Implementation (Ship implements Transport)
-- **Logistics** ← **RoadLogistics**: Inheritance (RoadLogistics extends Logistics)
-- **Logistics** ← **SeaLogistics**: Inheritance (SeaLogistics extends Logistics)
-- **Logistics** → **Transport**: Dependency (Logistics uses Transport)
+- **TransportFactory** → **Transport**: Creation (Factory creates Transport objects)
+- **Logistics** → **TransportFactory**: Usage (Logistics uses Factory to create objects)
+- **Logistics** → **Transport**: Dependency (Logistics uses Transport interface)
 
 ---
 
@@ -179,18 +194,19 @@ logistics.planDelivery();  // No need to know which transport is created
 
 | Participant | Role | Description |
 |-------------|------|-------------|
-| **Product** (`Transport`) | Interface | Defines the interface of objects the factory method creates |
+| **Product** (`Transport`) | Interface | Defines the interface of objects the factory creates |
 | **Concrete Product** (`Truck`, `Ship`) | Implementation | Implements the Product interface |
-| **Creator** (`Logistics`) | Abstract Class | Declares the factory method that returns new Product objects |
-| **Concrete Creator** (`RoadLogistics`, `SeaLogistics`) | Implementation | Overrides the factory method to return Concrete Products |
+| **Factory** (`TransportFactory`) | Factory Class | Contains static factory method for object creation |
+| **Client** (`Logistics`) | Consumer | Uses the factory to create and use product objects |
 
 ---
 
-## 💡 When to Use Factory Method
+## 💡 When to Use Factory Class
 
 - ✅ When you don't know beforehand the exact types and dependencies of objects
-- ✅ When you want to provide users with an extension point for creating objects
-- ✅ When you want to save system resources by reusing existing objects
+- ✅ When you want to centralize object creation logic in one place
+- ✅ When you want to use enums for type-safe object creation
+- ✅ When you want to avoid multiple creator subclasses
 - ✅ When you want to decouple client code from concrete classes
 
 ---
