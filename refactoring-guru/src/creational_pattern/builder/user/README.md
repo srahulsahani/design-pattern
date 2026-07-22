@@ -91,6 +91,339 @@ builder/user/
 
 ---
 
+## 🔗 Method Chaining Explained Step by Step
+
+Method chaining is a technique where each method returns the object itself (`this`), allowing multiple method calls to be chained together in a single statement. Let's break down how this works in the Builder pattern.
+
+### The Magic Behind Method Chaining
+
+Each setter method in the Builder follows this pattern:
+
+```java
+public Builder name(String name) {
+    this.name = name;      // 1. Set the field value
+    return this;            // 2. Return the Builder instance
+}
+```
+
+The key is `return this` - it returns the same Builder object, allowing the next method to be called on it.
+
+### Step-by-Step Execution
+
+Let's trace through this Builder call:
+
+```java
+User user = new User.Builder()
+        .name("Rahul")
+        .email("dummy@gmail.com")
+        .phone("1234567900")
+        .address("Banglore,IN")
+        .age(27)
+        .build();
+```
+
+#### Step 1: Create Builder Instance
+
+```java
+new User.Builder()
+```
+
+**Builder State:**
+```
+Builder {
+    name = null
+    email = null
+    phone = null
+    address = null
+    age = 0
+    country = null
+}
+```
+
+**Returns:** Builder instance (let's call it `builder1`)
+
+---
+
+#### Step 2: Call .name("Rahul")
+
+```java
+builder1.name("Rahul")
+```
+
+**Inside the method:**
+```java
+public Builder name(String name) {
+    this.name = name;  // Sets name = "Rahul"
+    return this;       // Returns the same builder1
+}
+```
+
+**Builder State after Step 2:**
+```
+Builder {
+    name = "Rahul"
+    email = null
+    phone = null
+    address = null
+    age = 0
+    country = null
+}
+```
+
+**Returns:** Same `builder1` instance
+
+---
+
+#### Step 3: Call .email("dummy@gmail.com")
+
+```java
+builder1.email("dummy@gmail.com")
+```
+
+**Inside the method:**
+```java
+public Builder email(String email) {
+    this.email = email;  // Sets email = "dummy@gmail.com"
+    return this;         // Returns the same builder1
+}
+```
+
+**Builder State after Step 3:**
+```
+Builder {
+    name = "Rahul"
+    email = "dummy@gmail.com"
+    phone = null
+    address = null
+    age = 0
+    country = null
+}
+```
+
+**Returns:** Same `builder1` instance
+
+---
+
+#### Step 4: Call .phone("1234567900")
+
+```java
+builder1.phone("1234567900")
+```
+
+**Inside the method:**
+```java
+public Builder phone(String phone) {
+    this.phone = phone;  // Sets phone = "1234567900"
+    return this;         // Returns the same builder1
+}
+```
+
+**Builder State after Step 4:**
+```
+Builder {
+    name = "Rahul"
+    email = "dummy@gmail.com"
+    phone = "1234567900"
+    address = null
+    age = 0
+    country = null
+}
+```
+
+**Returns:** Same `builder1` instance
+
+---
+
+#### Step 5: Call .address("Banglore,IN")
+
+```java
+builder1.address("Banglore,IN")
+```
+
+**Inside the method:**
+```java
+public Builder address(String address) {
+    this.address = address;  // Sets address = "Banglore,IN"
+    return this;             // Returns the same builder1
+}
+```
+
+**Builder State after Step 5:**
+```
+Builder {
+    name = "Rahul"
+    email = "dummy@gmail.com"
+    phone = "1234567900"
+    address = "Banglore,IN"
+    age = 0
+    country = null
+}
+```
+
+**Returns:** Same `builder1` instance
+
+---
+
+#### Step 6: Call .age(27)
+
+```java
+builder1.age(27)
+```
+
+**Inside the method:**
+```java
+public Builder age(int age) {
+    this.age = age;  // Sets age = 27
+    return this;     // Returns the same builder1
+}
+```
+
+**Builder State after Step 6:**
+```
+Builder {
+    name = "Rahul"
+    email = "dummy@gmail.com"
+    phone = "1234567900"
+    address = "Banglore,IN"
+    age = 27
+    country = null
+}
+```
+
+**Returns:** Same `builder1` instance
+
+---
+
+#### Step 7: Call .build()
+
+```java
+builder1.build()
+```
+
+**Inside the method:**
+```java
+public User build() {
+    return new User(this);  // Creates User using builder's current state
+}
+```
+
+**User Constructor receives the Builder:**
+```java
+private User(Builder builder) {
+    this.name = builder.name;        // "Rahul"
+    this.email = builder.email;     // "dummy@gmail.com"
+    this.phone = builder.phone;     // "1234567900"
+    this.address = builder.address; // "Banglore,IN"
+    this.age = builder.age;          // 27
+    this.country = builder.country; // null (not set)
+}
+```
+
+**Final User Object:**
+```
+User {
+    name = "Rahul"
+    email = "dummy@gmail.com"
+    phone = "1234567900"
+    address = "Banglore,IN"
+    age = 27
+    country = null
+}
+```
+
+**Returns:** New User instance with all fields set
+
+---
+
+### Visual Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    new User.Builder()                            │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name=null, email=null, phone=null, ...}             │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .name("Rahul")
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name="Rahul", email=null, phone=null, ...}           │
+│  Returns: this (same Builder instance)                           │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .email("dummy@gmail.com")
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name="Rahul", email="dummy@gmail.com", phone=null, ...}│
+│  Returns: this (same Builder instance)                           │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .phone("1234567900")
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name="Rahul", email="dummy@gmail.com", phone="1234567900", ...}│
+│  Returns: this (same Builder instance)                           │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .address("Banglore,IN")
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name="Rahul", email="dummy@gmail.com", phone="1234567900", address="Banglore,IN", ...}│
+│  Returns: this (same Builder instance)                           │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .age(27)
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Builder: {name="Rahul", email="dummy@gmail.com", phone="1234567900", address="Banglore,IN", age=27, country=null}│
+│  Returns: this (same Builder instance)                           │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │
+                             │ .build()
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  User: {name="Rahul", email="dummy@gmail.com", phone="1234567900", address="Banglore,IN", age=27, country=null}│
+│  Returns: new User instance                                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why Method Chaining Works
+
+1. **Same Object Reference**: Every method returns `this`, which is the same Builder object
+2. **Sequential Execution**: Methods execute one after another, each modifying the Builder's state
+3. **Fluent API**: The chain reads like a sentence: "builder.name().email().phone()..."
+4. **Single Statement**: The entire construction happens in one expression
+5. **Intermediate State**: Builder holds the intermediate state until `build()` is called
+
+### Without Method Chaining (For Comparison)
+
+```java
+// Without method chaining - verbose and repetitive
+User.Builder builder = new User.Builder();
+builder = builder.name("Rahul");
+builder = builder.email("dummy@gmail.com");
+builder = builder.phone("1234567900");
+builder = builder.address("Banglore,IN");
+builder = builder.age(27);
+User user = builder.build();
+```
+
+**With method chaining - clean and concise:**
+```java
+User user = new User.Builder()
+        .name("Rahul")
+        .email("dummy@gmail.com")
+        .phone("1234567900")
+        .address("Banglore,IN")
+        .age(27)
+        .build();
+```
+
+---
+
 ## ✅ Problem Solved by Builder
 
 ### ❌ Without Builder (Telescoping Constructor Problem)
